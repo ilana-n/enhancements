@@ -47,9 +47,9 @@ AIPerf can significantly improve the user experience by providing built-in visua
 * Real-time visualization during profiling (plots are generated post-profiling).
 * Integration with external databases.
 
-### REQ 1 Input-Agnostic Visualization
+### REQ 1 Plot Command
 
-AIPerf **MUST** provide a `plot` command that works with result files regardless of how they were generated. The `plot` command **MUST** support multiple input modes:
+AIPerf **MUST** provide a `plot` command that supports multiple input modes:
 1. Default (no argument): compare and plot runs in the `./artifacts` directory.
 2. One path to a directory containing multiple runs.
 3. One path to a single profile run.
