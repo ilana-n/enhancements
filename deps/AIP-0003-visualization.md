@@ -305,7 +305,7 @@ visualization:
         type: area
 ```
 **[Interactive Dashboard - Multi Run Comparison Mode]**
-![Example: Multi Run Comparison Dashboard](./AIP-0003_images/dashboard-multirun.png)
+![Example: Multi Run Comparison Dashboard](./AIP-0003_images/dashboard-multirun.gif)
 
 **[Interactive Dashboard - Single Run Analysis]**
 ![Example: Single Run Time Series Dashboard](./AIP-0003_images/dashboard-singlerun.png)
