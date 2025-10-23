@@ -60,18 +60,9 @@ AIPerf **MUST** provide a `plot` command that supports multiple input modes:
 AIPerf **MUST** support generating static visualization artifacts via `aiperf plot`:
 
 **Default PNG Mode:**
-- By default (no flags), `aiperf plot` **MUST** generate PNG images of all default plots as specified in user configuration (`~/.aiperf/config.yaml`)
-- PNG files **MUST** be saved to `{sweep_dir}/plots/` directory
-- A summary text file **MUST** be included listing all generated plots
-
-### REQ 2 Static Visualization Export
-
-AIPerf **MUST** support generating static visualization artifacts via `aiperf plot`:
-
-**Default PNG Mode:**
-- By default (no flags), `aiperf plot` **MUST** generate PNG images of all default plots as specified in user configuration (`~/.aiperf/config.yaml`) or system defaults
-- PNG files **MUST** be saved to `{sweep_dir}/plots/` directory
-- A summary text file **MUST** be included listing all generated plots
+- By default (no flags), `aiperf plot` **MUST** generate PNG images of all default plots as specified in user configuration (`~/.aiperf/plot_config.yaml`) or system defaults.
+- PNG files **MUST** be saved to `{input_path}/plots/` directory where `input_path` is either the directory path that the user specifies to load profiling run data from or the default `~/.aiperf/artifacts` directory if left unspecified.
+- A summary text file **MUST** be included listing all generated plots.
 
 All formats **MUST** work with both multi-run comparisons and single-run deep-dive analysis. The mode (multi-run vs single-run) **MUST** be auto-detected based on directory structure.
 
@@ -92,7 +83,7 @@ AIPerf **MUST** provide interactive visualization through two modes: HTML report
 - **MUST** generate a self-contained HTML file with all sweep data embedded as JSON
 - All interactivity **MUST** be client-side via JavaScript (no server required after generation)
 - **MUST** work completely offline
-- **MUST** be saved to `{sweep_dir}/visualizations/report.html`
+- **MUST** be saved to `{input_path}/plots/report.html`
 - Filtering and plot regeneration **MUST** operate on embedded data using JavaScript
 - Best for: sharing with team, remote environments (SLURM, K8s)
 
@@ -109,7 +100,7 @@ AIPerf **MUST** provide interactive visualization through two modes: HTML report
 **Shared Requirements for Both Modes:**
 - **MUST** run locally without requiring external services or internet connectivity
 - **MUST** use the same shared components for loading and plotting data as PNG mode for consistency
-- **MUST** respect user configuration for default plots from `~/.aiperf/config.yaml`
+- **MUST** respect user configuration for default plots from `~/.aiperf/plot_config.yaml`
 - **MUST** support both multi-run comparison mode and single-run time-series analysis mode
 - **MUST** auto-detect mode based on directory structure
 
@@ -177,7 +168,7 @@ Generates self-contained interactive HTML report:
   - Add custom plots from available metrics
 - Uses Plotly.js for zoom, pan, hover interactions
 - Works completely offline (no server required)
-- Saves to `{input_path}/visualizations/report.html`
+- Saves to `{input_path}/plots/report.html`
 - Best for: sharing with team, reports, remote environments (SLURM, K8s)
 
 **Interactive Server Mode (`--host`):**
@@ -206,7 +197,7 @@ When multiple runs are detected, generates comparison visualizations. For exampl
 - TTFT (Time to First Token) versus Average Request Throughput
 - TTFT versus ITL (Inter-token Latency)
 
-Default plots configurable via `~/.aiperf/config.yaml` (see Configuration section).
+Default plots configurable via `~/.aiperf/plot_config.yaml` (see Configuration section).
 
 ### Single-Run Analysis Mode
 
@@ -217,12 +208,12 @@ When a single run is detected, generates time-series visualizations:
 - Throughput over time
 - GPU memory and utilization over time (if available)
 
-Default plots configurable via `~/.aiperf/config.yaml` (see Configuration section).
+Default plots configurable via `~/.aiperf/plot_config.yaml` (see Configuration section).
 
 
 ## Configuration
 
-Users can configure default plots and make their own presets for multi-run comparison and single-run analysis in `~/.aiperf/config.yaml`:
+Users can configure default plots and make their own presets for multi-run comparison and single-run analysis in `~/.aiperf/plot_config.yaml`:
 ```yaml
 visualization:
     # =============================================================================
@@ -334,7 +325,7 @@ All three visualization modes share core components for consistency and maintain
                 │                           │
                 ▼                           ▼
          1. Load Config          2. Load & Parse Data
-    ~/.aiperf/config.yaml        profile_export.jsonl
+    ~/.aiperf/plot_config.yaml        profile_export.jsonl
                 │                           │
                 └─────────────┬─────────────┘
                               │
@@ -384,7 +375,7 @@ All modes reuse the following modules:
 - Shared by all modes (PNG converts to image, HTML converts to JSON, Dash returns directly)
 
 **PlotConfig** (`viz/core/config.py`):
-- Loads user configuration from `~/.aiperf/config.yaml`
+- Loads user configuration from `~/.aiperf/plot_config.yaml`
 - Merges with system defaults
 - Provides plot settings based on mode (multi_run vs single_run)
 
@@ -560,18 +551,15 @@ Access KVBM and Dynamo metrics through the Dynamo metrics endpoint.
    - Sets filters and plot types
    - Chooses color schemes and layout options
 3. User clicks "Export Configuration" button in HTML interface
-4. Browser downloads a `viz_config.yaml` file containing current settings
+4. Browser downloads a `plot_config.yaml` file containing current settings
 5. User can save this configuration for reuse:
 ```bash
    # Option 1: Save to default location
-   mv viz_config.yaml ~/.aiperf/config.yaml
+   mv plot_config.yaml ~/.aiperf/plot_config.yaml
    
-   # Option 2: Pass as argument
-   aiperf plot ./results --config viz_config.yaml
-   
-   # Option 3: Place in project directory
-   mv viz_config.yaml ./my_project/.aiperf_viz_config.yaml
-   aiperf plot ./results --config ./my_project/.aiperf_viz_config.yaml
+   # Option 2: Place in project directory and pass as an argument
+   mv plot_config.yaml ./my_project/.plot_config.yaml
+   aiperf plot ./results --config ./my_project/.plot_config.yaml
 ```
 
 **Benefits**:
