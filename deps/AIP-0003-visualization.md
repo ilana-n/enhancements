@@ -12,7 +12,7 @@
 
 **Sponsor**: [TBD]
 
-**Required Reviewers**: [ganesh, harshini]
+**Required Reviewers**: [ganesh-k, lkomali]
 
 **Review Date**: [TBD]
 
@@ -538,6 +538,9 @@ While valuable as an optional export format, making it the primary interface exc
 
 ## Connector with Dynamo Metrics 
 Access KVBM and Dynamo metrics through the Dynamo metrics endpoint. 
+
+## 3D Plots
+Having 3 configurable axes. For example, other metrics can change with changing OSL/ISL.  
 
 ## Visualization Configuration Export from Interactive HTML or Hosted Dashboard
 
