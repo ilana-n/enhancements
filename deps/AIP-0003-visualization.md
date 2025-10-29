@@ -1,18 +1,18 @@
 # Dynamo AIPerf Visualization Feature and Plot Command
 
-**Status**: Draft
+**Status**: Under Review
 
 **Authors**: [ilana-n]
 
 **Category**: Feature
 
-**Replaces**: N/A
+**Replaces**: Gen AIPerf Compare Command
 
 **Replaced By**: N/A
 
 **Sponsor**: [TBD]
 
-**Required Reviewers**: [TBD]
+**Required Reviewers**: [ganesh, harshini]
 
 **Review Date**: [TBD]
 
@@ -61,7 +61,7 @@ AIPerf **MUST** support generating static visualization artifacts via `aiperf pl
 
 **Default PNG Mode:**
 - By default (no flags), `aiperf plot` **MUST** generate PNG images of all default plots as specified in user configuration (`~/.aiperf/plot_config.yaml`) or system defaults.
-- PNG files **MUST** be saved to `{input_path}/plots/` directory where `input_path` is either the directory path that the user specifies to load profiling run data from or the default `~/.aiperf/artifacts` directory if left unspecified.
+- PNG files **MUST** be saved to `{input_path}/plot_export/` directory where `input_path` is either the directory path that the user specifies to load profiling run data from or the default `~/.aiperf/artifacts` directory if left unspecified.
 - A summary text file **MUST** be included listing all generated plots.
 
 All formats **MUST** work with both multi-run comparisons and single-run deep-dive analysis. The mode (multi-run vs single-run) **MUST** be auto-detected based on directory structure.
@@ -83,7 +83,7 @@ AIPerf **MUST** provide interactive visualization through two modes: HTML report
 - **MUST** generate a self-contained HTML file with all sweep data embedded as JSON
 - All interactivity **MUST** be client-side via JavaScript (no server required after generation)
 - **MUST** work completely offline
-- **MUST** be saved to `{input_path}/plots/report.html`
+- **MUST** be saved to `{input_path}/plot_export/report.html`
 - Filtering and plot regeneration **MUST** operate on embedded data using JavaScript
 - Best for: sharing with team, remote environments (SLURM, K8s)
 
@@ -151,7 +151,7 @@ aiperf plot subdir1/Qwen3-0.6B-concurrency8 subdir2/Qwen3-0.6B-concurrency16
 
 Generates static PNG images of all default plots:
 - Fast generation for quick preview 
-- Saves to `{input_path}/plots/` directory
+- Saves to `{input_path}/plot_export/` directory
 - Includes all plots specified in config defaults
 - Best for: easy export and sharing
 
@@ -168,7 +168,7 @@ Generates self-contained interactive HTML report:
   - Add custom plots from available metrics
 - Uses Plotly.js for zoom, pan, hover interactions
 - Works completely offline (no server required)
-- Saves to `{input_path}/plots/report.html`
+- Saves to `{input_path}/plot_export/dashboard.html`
 - Best for: sharing with team, reports, remote environments (SLURM, K8s)
 
 **Interactive Server Mode (`--host`):**
@@ -350,31 +350,31 @@ All three visualization modes share core components for consistency and maintain
          └─────┬──────┘  └───┬────┘   └────┬─────┘
                │             │             │
                ▼             ▼             ▼
-         Save PNGs to   Embed in HTML  Start server
-         ./plots/       + save file    + callbacks
+         Save PNGs to   Save HTML to  Start server
+         ./plot_export/ ./plot_export/ + callbacks
                │             │             │
                ▼             ▼             ▼
-           PNG files    report.html   localhost:8080
-                                      (live server)
+           PNG files   dashboard.html  localhost:8080
+                                       (live server)
 ```
 
 ### Shared Components
 
 All modes reuse the following modules:
 
-**DataLoader** (`viz/core/data_loader.py`):
+**DataLoader** (`plot/core/data_loader.py`):
 - Parses `profile_export.jsonl` files from run directories
 - Extracts metadata and metrics per request
 - Aggregates statistics (p50, p99, averages)
 - Detects swept parameters by comparing runs
 - Returns standardized data structure
 
-**PlotGenerator** (`viz/core/plot_generator.py`):
+**PlotGenerator** (`plot/core/plot_generator.py`):
 - Creates Plotly Figure objects for all plot types
 - Implements pareto curves, bar charts, time series, heatmaps
 - Shared by all modes (PNG converts to image, HTML converts to JSON, Dash returns directly)
 
-**PlotConfig** (`viz/core/config.py`):
+**PlotConfig** (`plot/core/config.py`):
 - Loads user configuration from `~/.aiperf/plot_config.yaml`
 - Merges with system defaults
 - Provides plot settings based on mode (multi_run vs single_run)
